@@ -32,16 +32,44 @@ describe "Contacts", ->
 
     beforeEach ->
       contactManager = new ContactManager()
-      contactManager.addContact(1, "adam@example.com", true)
-      contactManager.addContact(2, "bertha@example.com", false)
-      contactManager.addContact(3, "cat@example.com", true)
+      contactManager.addContact("Adam", "adambear@example.com", true)
+      contactManager.addContact("Bertha", "bertha@example.com", false)
+      contactManager.addContact("Cat", "cat@example.com", true)
 
-    it "should find selected contacts", ->
-      expect(contactManager.selectedContacts().length).toEqual 2
+    describe "selection", ->
+
+      it "should find selected contacts", ->
+        expect(contactManager.selectedContacts().length).toEqual 2
+
+    describe "searching", ->
+
+      it "should display all contacts before searching", ->
+        expect(contactManager.displayingContacts().length).toEqual 3
+
+      it "should do case-insensitive search by either name and email", ->
+        contactManager.search("Be")
+        displayingContacts = contactManager.displayingContacts()
+        expect(displayingContacts.length).toEqual 2
+        expect(displayingContacts[0].getEmail()).toEqual "adambear@example.com"
+        expect(displayingContacts[1].getName()).toEqual "Bertha"
+
+      it "should re-display all contacts when going from a search to a blank search", ->
+        contactManager.search("adam")
+        displayingContacts = contactManager.displayingContacts()
+        expect(displayingContacts.length).toEqual 1
+        contactManager.search("")
+        expect(contactManager.displayingContacts().length).toEqual 3
+
+      it "should display all contacts again after clearing search", ->
+        contactManager.search("adam")
+        displayingContacts = contactManager.displayingContacts()
+        expect(displayingContacts.length).toEqual 1
+        contactManager.clearSearch()
+        expect(contactManager.displayingContacts().length).toEqual 3
 
   describe "reporter", ->
 
     it "should get a list of emails", ->
       reporter = new ContactManagerReporter(contactManager)
       emails = reporter.emailsToSendTo()
-      expect(emails).toEqual "adam@example.com,cat@example.com"
+      expect(emails).toEqual "adambear@example.com,cat@example.com"

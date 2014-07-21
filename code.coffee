@@ -34,6 +34,10 @@ class Contact
 
   select: -> @_selected = true
 
+  getSelected: -> @_selected
+
+  getName: -> @_name
+
   getEmail: -> @_email
 
   getName: -> @_name
@@ -42,6 +46,7 @@ class ContactManager
 
   constructor: ->
     @_contacts = []
+    @_searchQuery = null
 
   getContactAtIndex: (index) ->
     @_contacts[index]
@@ -50,8 +55,24 @@ class ContactManager
     contact = new Contact(name, email, selected)
     @_contacts.push(contact)
 
+  search: (query) ->
+    query = null if query == ""
+    @_searchQuery = query
+
+  clearSearch: ->
+    @_searchQuery = null
+
   selectedContacts: ->
-    _.filter @_contacts, (x) -> x._selected == true
+    _.filter @_contacts, (x) -> x.getSelected() == true
+
+  displayingContacts: ->
+    if @_searchQuery
+      query = @_searchQuery.toLowerCase()
+      _.filter @_contacts, (x) ->
+        x.getName().toLowerCase().indexOf(query) >= 0 ||
+        x.getEmail().toLowerCase().indexOf(query) >= 0
+    else
+      @_contacts
 
 class ContactManagerReporter
 
